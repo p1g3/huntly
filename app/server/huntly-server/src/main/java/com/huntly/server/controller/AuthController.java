@@ -4,7 +4,6 @@ import com.huntly.common.api.ApiResult;
 import com.huntly.interfaces.external.dto.LoginUserInfo;
 import com.huntly.interfaces.external.model.LoginRequest;
 import com.huntly.server.domain.constant.AppConstants;
-import com.huntly.server.repository.UserRepository;
 import com.huntly.server.security.jwt.JwtUtils;
 import com.huntly.server.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,13 +36,13 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping("/signin")
+    @PostMapping("/signin/u_will_never_find_me")
     public ApiResult<String> signin(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         userService.updateLastLoginAt(loginRequest.getUsername());
-        
+
         String jwt = jwtUtils.generateJwtToken(authentication);
         addJwtToCookie(response, jwt);
         return ApiResult.ok(jwt);
@@ -77,18 +76,18 @@ public class AuthController {
         }
         return ApiResult.ok("logout success");
     }
-    
+
     @GetMapping("/loginUserInfo")
     public LoginUserInfo loginUserInfo(Principal principal) {
-        LoginUserInfo userInfo= new LoginUserInfo();
-        if(principal!=null){
+        LoginUserInfo userInfo = new LoginUserInfo();
+        if (principal != null) {
             userInfo.setUsername(principal.getName());
         }
         return userInfo;
     }
-    
+
     @GetMapping("/isUserSet")
-    public ApiResult<Boolean> isUserSet(){
+    public ApiResult<Boolean> isUserSet() {
         return ApiResult.ok(userService.isUserSet());
     }
 }
